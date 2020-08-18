@@ -7,7 +7,7 @@
 %global __provides_exclude_from ^(%{python2_sitearch}/.*\\.so|%{python3_sitearch}/.*\\.so|%{_qt4_plugindir}/.*\\.so)$
 Name:          PyQt4
 Version:       4.12.1
-Release:       12
+Release:       13
 Summary:       Python bindings for Qt4
 License:       (GPLv3 or GPLv2 with exceptions) and BSD
 Url:           http://www.riverbankcomputing.com/software/pyqt/
