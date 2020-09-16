@@ -7,7 +7,7 @@
 %global __provides_exclude_from ^(%{python2_sitearch}/.*\\.so|%{python3_sitearch}/.*\\.so|%{_qt4_plugindir}/.*\\.so)$
 Name:          PyQt4
 Version:       4.12.1
-Release:       13
+Release:       14
 Summary:       Python bindings for Qt4
 License:       (GPLv3 or GPLv2 with exceptions) and BSD
 Url:           http://www.riverbankcomputing.com/software/pyqt/
@@ -133,8 +133,11 @@ diff -u ./sip/QtGui/opengl_types.sip.orig ./sip/QtGui/opengl_types.sip ||:
 %{_datadir}/python3-sip/PyQt4/
 
 %changelog
-* Tue Sep 15 2020 Ge wang <wangge20@huawei.com> - 4.12.1-13
+* Tue Sep 15 2020 Ge Wang <wangge20@huawei.com> - 4.12.1-14
 - Modify Source0 Url
+
+* Tue Sep 15 2020 Ge Wang <wangge20@huawei.com> - 4.12.1-13
+- Add release for update
 
 * Fri Feb 14 2020 fengbing <fengbing7@huawei.com> - 4.12.1-12
 - Pakcage init
