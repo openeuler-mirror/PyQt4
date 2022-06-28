@@ -2,8 +2,8 @@
 %global python3_dbus_dir %(%{__python3} -c "import dbus.mainloop; print(dbus.mainloop.__path__[0])")
 %global __provides_exclude_from ^(%{python3_sitearch}/.*\\.so|%{_qt4_plugindir}/.*\\.so)$
 Name:          PyQt4
-Version:       4.12.1
-Release:       14
+Version:       4.12.3
+Release:       1
 Summary:       Python bindings for Qt4
 License:       (GPLv3 or GPLv2 with exceptions) and BSD
 Url:           http://www.riverbankcomputing.com/software/pyqt/
@@ -109,6 +109,9 @@ diff -u ./sip/QtGui/opengl_types.sip.orig ./sip/QtGui/opengl_types.sip ||:
 %{_datadir}/python3-sip/PyQt4/
 
 %changelog
+* Thu Jun 23 2022 SimpleUpdate Robot <tc@openeuler.org> - 4.12.3-1
+- Upgrade to version 4.12.3
+
 * Tue Oct 27 2020 leiju <leiju4@huawei.com> - 4.12.1-14
 - Remove python2 dependency
 
