@@ -3,13 +3,16 @@
 %global __provides_exclude_from ^(%{python3_sitearch}/.*\\.so|%{_qt4_plugindir}/.*\\.so)$
 Name:          PyQt4
 Version:       4.12.3
-Release:       1
+Release:       2
 Summary:       Python bindings for Qt4
 License:       (GPLv3 or GPLv2 with exceptions) and BSD
 Url:           http://www.riverbankcomputing.com/software/pyqt/
 Source0:       http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-%{version}/PyQt4_gpl_x11-%{version}.tar.gz/download?use_mirror=ufpr#/PyQt4_gpl_x11-%{version}.tar.gz
 
 Patch0001:     qreal_float_support.diff
+%if "%toolchain" == "clang"
+Patch0002:     fix-clang.patch
+%endif
 BuildRequires: chrpath dbus-python findutils gcc-c++ pkgconfig(dbus-1) pkgconfig(dbus-python) pkgconfig(phonon)
 BuildRequires: pkgconfig(QtDBus) pkgconfig(QtDeclarative) pkgconfig(QtDesigner) pkgconfig(QtGui) pkgconfig(QtHelp)
 BuildRequires: pkgconfig(QtMultimedia) pkgconfig(QtNetwork) pkgconfig(QtOpenGL) pkgconfig(QtScript) pkgconfig(QtScriptTools)
@@ -109,6 +112,9 @@ diff -u ./sip/QtGui/opengl_types.sip.orig ./sip/QtGui/opengl_types.sip ||:
 %{_datadir}/python3-sip/PyQt4/
 
 %changelog
+* Thu Jun 15 2023 yoo <sunyuechi@iscas.ac.cn> - 4.12.3-2
+- fix clang build error
+
 * Thu Jun 23 2022 SimpleUpdate Robot <tc@openeuler.org> - 4.12.3-1
 - Upgrade to version 4.12.3
 

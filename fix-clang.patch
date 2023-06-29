@@ -1,0 +1,167 @@
+diff -u -r PyQt4_gpl_x11-4.12.3/configure.py PyQt4_gpl_x11-4.12.3/configure.py
+--- PyQt4_gpl_x11-4.12.3/configure.py	2018-08-31 15:36:58.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/configure.py	2023-06-15 13:06:30.000000000 +0800
+@@ -26,6 +26,22 @@
+ 
+ import sipconfig
+ 
++import re
++def modify_makefile(dir_path):
++    makefile_path = os.path.join(dir_path, "Makefile")
++    if not os.path.exists(makefile_path):
++        return
++
++    with open(makefile_path, 'r') as file:
++        data = file.read()
++
++    data = re.sub(r'CC\s*=\s*gcc', 'CC=clang', data)
++    data = re.sub(r'CXX\s*=\s*g\+\+', 'CXX=clang++', data)
++    data = re.sub(r'LINK\s*=\s*g\+\+', 'LINK=clang++', data)
++
++    with open(makefile_path, 'w') as file:
++        file.write(data)
++
+ 
+ # Initialise the globals.
+ pyqt_version = 0x040c03
+@@ -855,6 +871,7 @@
+             add_makefile_extras(makefile, dbusincdirs, dbuslibdirs, dbuslibs)
+ 
+             makefile.generate()
++            modify_makefile(makefile.dir)
+             tool.append("dbus")
+ 
+         # Only include ElementTree for older versions of Python.
+@@ -868,6 +885,7 @@
+             )
+ 
+             makefile.generate()
++            modify_makefile(makefile.dir)
+             tool.append("elementtree")
+ 
+         # Create the pyuic4 wrapper.  Use the GUI version on MacOS (so that
+@@ -907,6 +925,7 @@
+         )
+ 
+         makefile.generate()
++        modify_makefile(makefile.dir)
+         tool.append("pyuic")
+ 
+         sipconfig.inform("Creating pylupdate4 Makefile...")
+@@ -933,6 +952,7 @@
+             makefile.extra_cxxflags.append(cxxflags_app)
+ 
+         makefile.generate()
++        modify_makefile(makefile.dir)
+         tool.append("pylupdate")
+ 
+         sipconfig.inform("Creating pyrcc4 Makefile...")
+@@ -943,6 +963,7 @@
+             makefile.extra_cxxflags.append(cxxflags_app)
+ 
+         makefile.generate()
++        modify_makefile(makefile.dir)
+         tool.append("pyrcc")
+ 
+         if opts.designer_plugin and "QtDesigner" in pyqt_modules:
+@@ -1226,6 +1247,9 @@
+ 
+     # Make sure the executable file doesn't exist.
+     remove_file(exe)
++
++    build = build.replace("g++", "clang++")
++
+     run_command(build, envvars=envvars)
+ 
+     if not os.access(exe, os.X_OK):
+@@ -1693,6 +1717,7 @@
+         makefile.extra_defines.append('QT_DISABLE_DEPRECATED_BEFORE=0x04ffff')
+ 
+     makefile.generate()
++    modify_makefile(makefile.dir)
+ 
+ 
+ def fix_license(name):
+@@ -1918,12 +1943,7 @@
+ 
+ 
+ def fix_qmake_args(args=""):
+-    """Make any platform specific adjustments to the arguments passed to qmake.
+-    """
+-    if sys.platform == "darwin":
+-        # The Qt binary installer has macx-xcode as the default.
+-        args = "-spec %s %s" % (qt_macx_spec, args)
+-
++    args = "-spec %s %s" % ("/usr/lib64/qt4/mkspecs/unsupported/linux-clang", args)
+     return args
+ 
+ 
+diff -u -r PyQt4_gpl_x11-4.12.3/designer/designer.pro-in PyQt4_gpl_x11-4.12.3/designer/designer.pro-in
+--- PyQt4_gpl_x11-4.12.3/designer/designer.pro-in	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/designer/designer.pro-in	2023-06-15 03:30:08.000000000 +0800
+@@ -1,3 +1,5 @@
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
++
+ CONFIG      += plugin @QTCONFIG@ warn_on
+ 
+ greaterThan(QT_MAJOR_VERSION, 4) {
+@@ -28,3 +30,5 @@
+ python.files = python
+ 
+ INSTALLS    += target python
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
+diff -u -r PyQt4_gpl_x11-4.12.3/qpy/QtCore/qpycore.pro PyQt4_gpl_x11-4.12.3/qpy/QtCore/qpycore.pro
+--- PyQt4_gpl_x11-4.12.3/qpy/QtCore/qpycore.pro	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/qpy/QtCore/qpycore.pro	2023-06-15 02:36:25.000000000 +0800
+@@ -81,3 +81,5 @@
+             qpycore_sip.h \
+             qpycore_sip_helpers.h \
+             qpycore_types.h
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
+diff -u -r PyQt4_gpl_x11-4.12.3/qpy/QtDBus/qpydbus.pro PyQt4_gpl_x11-4.12.3/qpy/QtDBus/qpydbus.pro
+--- PyQt4_gpl_x11-4.12.3/qpy/QtDBus/qpydbus.pro	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/qpy/QtDBus/qpydbus.pro	2023-06-15 02:36:20.000000000 +0800
+@@ -35,3 +35,5 @@
+             qpydbus_chimera_helpers.h \
+             qpydbuspendingreply.h \
+             qpydbusreply.h
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
+diff -u -r PyQt4_gpl_x11-4.12.3/qpy/QtDeclarative/qpydeclarative.pro PyQt4_gpl_x11-4.12.3/qpy/QtDeclarative/qpydeclarative.pro
+--- PyQt4_gpl_x11-4.12.3/qpy/QtDeclarative/qpydeclarative.pro	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/qpy/QtDeclarative/qpydeclarative.pro	2023-06-15 02:36:16.000000000 +0800
+@@ -36,3 +36,5 @@
+             qpydeclarative_listwrapper.h \
+             qpydeclarativelistproperty.h \
+             qpydeclarativepropertyvaluesource.h
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
+diff -u -r PyQt4_gpl_x11-4.12.3/qpy/QtDesigner/qpydesigner.pro PyQt4_gpl_x11-4.12.3/qpy/QtDesigner/qpydesigner.pro
+--- PyQt4_gpl_x11-4.12.3/qpy/QtDesigner/qpydesigner.pro	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/qpy/QtDesigner/qpydesigner.pro	2023-06-15 02:36:13.000000000 +0800
+@@ -39,3 +39,5 @@
+             qpydesignermembersheetextension.h \
+             qpydesignerpropertysheetextension.h \
+             qpydesignertaskmenuextension.h
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
+diff -u -r PyQt4_gpl_x11-4.12.3/qpy/QtGui/qpygui.pro PyQt4_gpl_x11-4.12.3/qpy/QtGui/qpygui.pro
+--- PyQt4_gpl_x11-4.12.3/qpy/QtGui/qpygui.pro	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/qpy/QtGui/qpygui.pro	2023-06-15 01:24:18.000000000 +0800
+@@ -25,3 +25,5 @@
+ 
+ HEADERS   = \
+             qpytextobject.h
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
+diff -u -r PyQt4_gpl_x11-4.12.3/qpy/QtOpenGL/qpyopengl.pro PyQt4_gpl_x11-4.12.3/qpy/QtOpenGL/qpyopengl.pro
+--- PyQt4_gpl_x11-4.12.3/qpy/QtOpenGL/qpyopengl.pro	2018-08-31 15:37:06.000000000 +0800
++++ PyQt4_gpl_x11-4.12.3/qpy/QtOpenGL/qpyopengl.pro	2023-06-15 02:36:06.000000000 +0800
+@@ -30,3 +30,5 @@
+ 
+ HEADERS   = \
+             qpyopengl_api.h
++
++QMAKE_CXX = $$system("echo ${CXX:-g++}")
